@@ -1,1 +1,1 @@
-# MRI-Colorization-Cross-Modal-Fusion-Learning-
+# MRI-Colorization-Cross-Modal-Fusion-Learning

@@ -75,18 +75,20 @@ Include key figures, tables, or summaries from the paper. Optionally, provide li
 ## 📑 Citation
 If you use this work, please cite:
 ```bibtex
-@article{your_citation,
-  author    = {Author Name(s)},
-  title     = {Paper Title},
-  journal   = {Journal/Conference},
-  year      = {Year},
-  doi       = {DOI}
+@misc{mathur2024structurallyconsistentmricolorization,
+      title={Structurally Consistent MRI Colorization using Cross-modal Fusion Learning}, 
+      author={Mayuri Mathur and Anav Chaudhary and Saurabh Kumar Gupta and Ojaswa Sharma},
+      year={2024},
+      eprint={2412.10452},
+      archivePrefix={arXiv},
+      primaryClass={eess.IV},
+      url={https://arxiv.org/abs/2412.10452}, 
 }
 ```
 
 ## 📬 Contact
 For questions, feel free to reach out to:
-- **Your Name** - [Email](mailto:mayurim@iiitd.ac.in)
+- **Mayuri Mathur** - [Email](mailto:mayurim@iiitd.ac.in)
 - Open an issue in this repository.
 
 

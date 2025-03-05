@@ -18,10 +18,10 @@ _Medical image colorization can greatly enhance the interpretability of the unde
 Below are some key figures from the paper:
 
 ![Figure 1](./results/multiresoutputs.png)
-*Figure 1: Description of Figure 1.*
+*Figure 1: MRI colorization results on three scales of resolution..*
 
 ![Figure 2](./results/Comparisons.png)
-*Figure 2: Description of Figure 2.*
+*Quantitative comparison of MRI colorization with different methods.*
 
 ### Tables
 Below are some key tables from the paper:

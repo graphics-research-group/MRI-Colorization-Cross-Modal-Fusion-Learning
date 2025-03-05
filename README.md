@@ -1,7 +1,5 @@
 # Paper Title
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Repo Status](https://img.shields.io/badge/status-active-success)
 
 ## 📄 Introduction
 This repository contains the code, data, and supplementary materials for the paper:

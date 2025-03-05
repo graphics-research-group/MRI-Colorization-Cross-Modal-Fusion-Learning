@@ -21,7 +21,7 @@ Below are some key figures from the paper:
 *Figure 1: MRI colorization results on three scales of resolution..*
 
 ![Figure 2](./results/Comparisons.png)
-*Quantitative comparison of MRI colorization with different methods.*
+*Figure 2: Quantitative comparison of MRI colorization with different methods.*
 
 ### Tables
 Below are some key tables from the paper:

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>MRI-Colorization-Cross-Modal-Fusion-Learning</title>
+
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="./neural/npm/bootstrap%405.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+    <script src="./neural/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="./js/dics/dics.original.css">
+    <script src="./js/dics/dics.original.js"></script>
+    <script src="./js/event_handler.js"></script>
+
+    <link href="./neural/css?family=IBM+Plex+Sans:300,400,500,600,700" rel="stylesheet">
+    <link href="./neural/css-1?family=Inconsolata:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./css/style_neural.css">
+</head>
+
+<body lang="en">
+    <main role="main">
+
+        <section class="jumbotron text-center" id="banner">
+            <div class="container text-center" id="title">
+                <h2 class="jumbotron-heading text-center" style="line-height: 35px;">
+                    STRUCTURALLY CONSISTENT MRI COLORIZATION USING CROSS-MODAL FUSION
+                    LEARNING
+                </h2>
+                
+            </div>
+
+            <div class="container" style="max-width: none; margin-top:10px;">
+
+                <div class="row row-author" style="margin: 0 70px 0 70px; ">
+                    <div class="col-md author">
+                        <a class="link" href="https://www.linkedin.com/in/mayuri-mathur-a42492188/" target="_blank">Mayuri Mathur</a><sup style="margin-right:10px">1</sup>
+                        <a class="link" href="https://www.linkedin.com/in/anavchaudhary" target="_blank">Anav Chaudhary</a><sup>2</sup>
+                        <a class="link" href="https://www.linkedin.com/in/drsaurabhmd/overlay/about-this-profile/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BOiNysp5HTCWpXYPhtjQ3lw%3D%3D" target="_blank">Saurabh Kumar Gupta</a><sup>3</sup>
+                        <a class="link" href="https://www.iiitd.ac.in/ojaswa" target="_blank">Ojaswa Sharma</a><sup>1</sup>
+                    </div>   
+                </div>  
+
+                <!-- <div class="row" style="margin-top:0.5rem; margin-left: auto; margin-right: auto;"> -->
+                 <!-- <div class="row" style="text-align: center;">   
+                    <div class="col-md">
+                        <div id="affiliation">
+                            <sup>1</sup>Graphics Research Group, IIIT Delhi &nbsp;&nbsp;&nbsp;&nbsp; 
+                            <sup>2</sup>Purdue University, USA
+                            <sup>3</sup>All India Institute of Medical Sciences, India            </div>
+                    </div>
+                </div>
+            </div>
+             -->
+             <p style="text-align: center;"> <sup>1</sup>Graphics Research Group, IIIT Delhi, India </p>
+             <p style="text-align: center;"> <sup>2</sup>Purdue University, USA </p>
+             <p style="text-align: center;"> <sup>3</sup>All India Institute of Medical Sciences, India  </p>
+
+
+            <div id="venue">
+                IEEE International Symposium on Biomedical Imaging (ISBI), 2025<br><br>
+            </div>
+
+            <div class="row">
+                <div class="col-md">
+                    <ul class="nav nav-pills">
+                        <li style="padding-top: 10px;" class="space-between">
+                            <a href="https://arxiv.org/abs/2412.10452" class="hover-image-link" style="padding-top: 0;">
+                            <image class="first-image" src="./assets/icons/paper.png" width="60px"></image>
+                            <image class="second-image" src="./assets/icons/paper_hover.png" width="60px"></image>
+                            <h3 style="font-size: 1.2rem; padding-top: 10px;"><strong>Paper</strong></h3>
+                            </a>
+                        </li>
+                        <li style="padding-top: 10px;"  class="space-between">
+                            <a href="https://github.com/graphics-research-group/MRI-Colorization-Cross-Modal-Fusion-Learning" class="hover-image-link" >
+                            <image class="first-image" src="./assets/icons/github.png" width="60px"></image>
+                            <image class="second-image" src="./assets/icons/github_hover.png" width="60px"></image>
+                            <h3 style="font-size: 1.2rem; padding-top: 10px;"><strong>Code</strong></h3>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="container" style="padding-top: 20px;">
+        </section>
+    </main>
+
+
+    <div class="container">
+
+        <hr style="border-top: 3px double;">
+
+        <!-- Abstract -->
+        <h5>Abstract</h5>
+        <p style="text-align: justify; padding-bottom: 30px;">
+            Medical image colorization can greatly enhance the interpretability of the underlying imaging modality and provide insights into human anatomy. 
+            The objective of medical image colorization is to transfer a diverse spectrum of colors distributed across human anatomy from Cryosection data 
+            to source MRI data while retaining the structures of the MRI. To achieve this, we propose a novel architecture for structurally consistent color
+            transfer to the source MRI data. Our architecture fuses segmentation semantics of Cryosection images for stable contextual colorization of various
+            organs in MRI images. For colorization, we neither require precise registration between MRI and Cryosection images, nor segmentation of MRI images.
+            Additionally, our architecture incorporates a feature compression-and-activation mechanism to capture organ-level global information and suppress noise, enabling the distinction of organ-specific data in MRI scans for more accurate and realistic organ-specific colorization. Our experiments demonstrate that our architecture surpasss the existing methods and yields better quantitative and qualitative results. 
+
+
+        </p>
+
+        <!-- Overview -->
+        <h5>Overview</h5>
+        <div class="text-center;" style="padding-top: 30px; padding-bottom: 30px">
+            <image src="./assets/images/arch.png" class="img-responsive" alt="intro">
+        </div>
+        <p style="text-align: justify;">
+            Our method builds the cross-domain organ-color and organ-structure association between partly registered heterogeneous data. It integrates the Cryosection segmentation semantics with the perceptually similar semantics of the MRI  data during cyclic generation across domains. This is achieved by the color adaptation dual decoder module used in our proposed colorization generator in the forward pass of our cycle-consistent network for bridging multimodal information of colors and structures. One decoder is designed 
+            for building an association between organ regions and colors using the semantics of segmentation data while the other decoder performs MRI colorization by leveraging this association during optimization.
+            (a) A novel architecture to colorize the whole body that can effectively capture anatomical structures of the MRI data and colors of Cryosection data.
+            (b) Integration of Cryosection segmentation information in the proposed cross-modality adaptation framework for a robust semantic and color-texture correlation.
+            (c) A multiscale module to handle varying resolutions of input MRI images.
+
+        </p>
+
+        <h5> Results</h5>
+        <div class="text-center;" style="padding-top: 30px; padding-bottom: 30px">
+            <image src="./assets/images/multires_results.png" class="img-responsive" alt="intro">
+            <p style="text-align: center;"> MRI colorization results on three scales of resolution. </p>
+        </div>
+
+        <h5> Comparisons with state-of-the-art</h5>
+        <div class="text-center;" style="padding-top: 30px; padding-bottom: 30px">
+            <image src="./assets/images/comparisons.png" class="img-responsive" alt="intro">
+            <image src="./assets/images/zoom_compar.png" class="img-responsive" alt="intro"></image>
+            <p style="text-align: center;"> Quantitative comparison of MRI colorization with different methods: <a href="http://openaccess.thecvf.com/content_WACV_2020/html/Vitoria_ChromaGAN_Adversarial_Picture_Colorization_with_Semantic_Class_Distribution_WACV_2020_paper.html">ChromaGAN</a>, <a href="https://link.springer.com/chapter/10.1007/978-3-031-19787-1_2">ColorFormer</a>, 
+                <a href="http://openaccess.thecvf.com/content/ICCV2023/html/Kang_DDColor_Towards_Photo-Realistic_Image_Colorization_via_Dual_Decoders_ICCV_2023_paper.html">DDColor</a>, 
+                <a href="https://ieeexplore.ieee.org/abstract/document/9761546/">APS</a>, 
+                <a href="https://openaccess.thecvf.com/content/WACV2024/html/Kim_Adaptive_Latent_Diffusion_Model_for_3D_Medical_Image_to_Image_WACV_2024_paper.html">ALDM</a>  </p>
+        </div>
+        <!-- <h6>Comparison with SOTA on the <a href="http://openaccess.thecvf.com/content_WACV_2020/html/Vitoria_ChromaGAN_Adversarial_Picture_Colorization_with_Semantic_Class_Distribution_WACV_2020_paper.html">ChromaGAN</a>, <a href="https://link.springer.com/chapter/10.1007/978-3-031-19787-1_2">ColorFormer</a>, 
+            <a href="http://openaccess.thecvf.com/content/ICCV2023/html/Kang_DDColor_Towards_Photo-Realistic_Image_Colorization_via_Dual_Decoders_ICCV_2023_paper.html">DDColor</a>, 
+            <a href="https://ieeexplore.ieee.org/abstract/document/9761546/">APS</a>, 
+            <a href="https://openaccess.thecvf.com/content/WACV2024/html/Kim_Adaptive_Latent_Diffusion_Model_for_3D_Medical_Image_to_Image_WACV_2024_paper.html">ALDM</a> 
+        </h6> -->
+
+        <h5>  Ablation study </h5>
+        <div class="text-center;" style="padding-top: 30px; padding-bottom: 30px">
+            <image src="./assets/images/ablation.png" class="img-responsive" alt="intro">
+            <image src="./assets/images/zoom_ablation.png" class="img-responsive" alt="intro"></image>
+            <p style="text-align: center;"> Qualitative comparison of the effectiveness of various components of our architecture. </p>
+        </div>
+
+		
+        <!-- <hr style="border-top: 3px double;">
+        <h5>Rendering Results</h5>
+        <h6>Novel view synthesis: Examples of RGB images and their corresponding normal maps rendered, using our approach, from novel views.</h6> 
+        <div class="container;" style=" padding-bottom: 10px;">
+            <ul class="nav nav-tabs nav-fill nav-justified" id="object-bmvsimages-render">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(0)">Bear</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(1)">Camera</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(2)">Clock</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="objectRenderEvent(3)">Dog</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(4)">Durian</a>
+                </li>
+				<li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(5)">Gundam</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(6)">Jade</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(7)">Man</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectRenderEvent(8)">Stone</a>
+                </li>
+            </ul>
+            <div class="bordered-container">
+            <div class="b-dics" style="width: 100%; font-weight: 600; margin: 0 auto;">
+                <img src="./assets//images/render_bmvs/dog/rgb.png" alt="RGB">
+                <img src="./assets/snnir/images/render_bmvs/dog/normal.png" alt="Normal">
+            </div>
+            </div>
+        </div> -->
+
+        <!-- <hr style="border-top: 3px double;">
+        <h5>Reconstruction Results</h5>
+
+        <!-- <hr style="border-top: 3px double;"> -->
+        <!-- <h6>Comparison on the <a href="https://sites.google.com/site/photometricstereodata/mv">DiLiGenT-MV dataset</a> with 2 input views (front and back): Ours (mono-illumination) vs <a href="https://ywq.github.io/psnerf/">PS-NeRF [ECCV 2022]</a> (multi-illumination) vs <a href="https://lingjie0206.github.io/papers/NeuS/">NeuS [NeurIPS 2021]</a> (mono-illumination).</h6>
+
+        <div class="container;" style=" padding-bottom: 10px;">
+            <ul class="nav nav-tabs nav-fill nav-justified" id="object-scale-recon">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEvent(0)">Bear</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEvent(1)">Buddha</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEvent(2)">Cow</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="objectSceneEvent(3)">Pot2</a>
+                </li>
+				<li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEvent(4)">Reading</a>
+                </li>
+            </ul>
+            <div class="bordered-container">
+            <div class="b-dics" style="width: 70%; font-weight: 600; margin: 0 auto;">
+                <img src="./assets/snnir/images/cmp_ps_methods/pot2/psnerf.png" alt="PS-NeRF">
+                <img src="./assets/snnir/images/cmp_ps_methods/pot2/ours.png" alt="Ours">
+                <img src="./assets/snnir/images/cmp_ps_methods/pot2/neus.png" alt="NeuS">
+            </div>
+            </div>
+        </div> -->
+
+
+        <!-- Comparisons Images -->
+        <!-- <h6>Comparison with SOTA on the <a href="https://sites.google.com/site/photometricstereodata/mv">DiLiGenT-MV dataset</a> with different number of input views: Ours (mono-illumination) vs <a href="https://github.com/CyberAgentAILab/SuperNormal">Super Normal [CVPR 2024]</a> (multi-illumination) vs <a href="https://github.com/bbrument/RNb-NeuS/">RNb-NeuS [CVPR 2024]</a> (multi-illumination).</h6>
+
+        <div class="container;" style=" padding-bottom: 10px; font-size: 0;">
+            <ul class="nav nav-tabs nav-fill nav-justified" style="font-size: 16px;" id="modelChoice">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="changeModel(0)">Bear</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="changeModel(1)">Buddha</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="changeModel(2)">Cow</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="changeModel(3)">Pot2</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="changeModel(4)">Reading</a>
+                </li>
+            </ul>
+            <ul class="nav nav-tabs nav-fill nav-justified" id="viewChoice">
+            <li class="nav-item" style="font-size: 16px;">
+                <a class="nav-link active" onclick="changeView(0)">2 views</a>
+            </li>
+            <li class="nav-item" style="font-size: 16px;">
+                <a class="nav-link" onclick="changeView(1)">5 views</a>
+            </li>
+            <li class="nav-item" style="font-size: 16px;">
+                <a class="nav-link" onclick="changeView(2)">10 views</a>
+            </li>
+            <li class="nav-item" style="font-size: 16px;">
+                <a class="nav-link" onclick="changeView(3)">15 views</a>
+            </li>
+            <li class="nav-item" style="font-size: 16px;">
+                <a class="nav-link" onclick="changeView(4)">20 views</a>
+            </li>
+        </ul>
+            <div class="bordered-container">
+            <div class="b-dics" style="width: 70%; font-weight: 600; margin: 0 auto;">
+                <img src="./assets/snnir/images/cmp_diff_views_methods/cow/sn_2.png" alt="Super Normal">
+                <img src="./assets/snnir/images/cmp_diff_views_methods/cow/ours_2.png" alt="Ours">
+                <img src="./assets/snnir/images/cmp_diff_views_methods/cow/rnb_neus_2.png" alt="RNb-NeuS">
+            </div>
+            </div>
+        </div> -->
+
+        <!-- <h6>Comparison with <a href="https://turandai.github.io/projects/gaussian_surfels/">Gaussian Surfels [SIGGRAPH 2024]</a> (SOTA) on the <a href="https://github.com/YoYo000/BlendedMVS">BMVS dataset</a> with all input views setting.</h6>
+        <h6>Comparison with <a href="https://turandai.github.io/projects/gaussian_surfels/">Gaussian Surfels [SIGGRAPH 2024]</a> (SOTA) on the <a href="https://github.com/YoYo000/BlendedMVS">BMVS dataset</a> with all input views setting.</h6>
+
+        <div class="container;" style=" padding-bottom: 10px;">
+            <ul class="nav nav-tabs nav-fill nav-justified" id="object-bmvsobjects-recon">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventBMVS(0)">Camera</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="objectSceneEventBMVS(1)">Clock</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventBMVS(2)">Cow</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventBMVS(3)">Dog</a>
+                </li>
+				<li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventBMVS(4)">Man</a>
+                </li>
+            </ul>
+            <div class="bordered-container">
+            <div class="b-dics" style="width: 70%; font-weight: 600; margin: 0 auto;">
+                <img src="./assets/snnir/images/cmp_bmvs/clock/gs.png" alt="Gaussian Surfels">
+                <img src="./assets/snnir/images/cmp_bmvs/clock/ours.png" alt="Ours">
+            </div>
+            </div>
+        </div> -->
+
+        
+        <!-- <h6>Comparison with <a href="https://open3dvlab.github.io/NeuRodin/">NeuRodin [NeurIPS 2024]</a> (SOTA) on the <a href="https://roboimagedata.compute.dtu.dk/?page_id=36"> DTU dataset</a>.</h6>
+
+        <div class="container;" style=" padding-bottom: 10px;">
+            <ul class="nav nav-tabs nav-fill nav-justified" id="object-DTUobjects-recon">
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="objectSceneEventDTU(0)">Scan 24</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventDTU(1)">Scan 69</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventDTU(2)">Scan 106</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventDTU(3)">Scan 114</a>
+                </li>
+				<li class="nav-item">
+                    <a class="nav-link" onclick="objectSceneEventDTU(4)">Scan 122</a>
+                </li>
+            </ul>
+            <div class="bordered-container">
+            <div class="b-dics" style="width: 70%; font-weight: 600; margin: 0 auto;">
+                <img src="./assets/snnir/images/cmp_dtu/scan24/gs.png" alt="Gaussian Surfels">
+                <img src="./assets/snnir/images/cmp_dtu/scan24/ours.png" alt="Ours">
+            </div>
+            </div>
+        </div>  -->
+
+        <!-- Citation -->
+        <hr style="border-top: 3px double;">
+        <h5>Citation</h5>
+        <div class="row">
+            <div id="citation">
+                @article{mathur2024structurally,
+                    title={Structurally Consistent MRI Colorization using Cross-modal Fusion Learning},
+                    author={Mathur, Mayuri and Chaudhary, Anav and Gupta, Saurabh Kumar and Sharma, Ojaswa},
+                    journal={arXiv preprint arXiv:2412.10452},
+                    year={2024}
+                  }
+            </div> 
+        </div>
+        <div style="text-align:center;">
+            <button id="copy-button" class="copy-button" onclick="copyTextToClipboard()" >Copy</button>
+        </div>
+
+        <!-- Acknowledgements -->
+        <hr style="border-top: 3px double;">
+        <h5>Acknowledgements</h5>
+        <p style="text-align: justify;">
+            This research was supported by the Science and Engineering Research Board (SERB) of the Department of Science and Technology (DST) of India (Grant No. CRG/2020/005792). The Visible Korean Human dataset for our research was pro vided by the Korea Institute of Science and Technology Information (KISTI), South Korea.        </p>
+
+    </div>
+
+    <div id="copyMessage">
+        @Article{Patel25,
+            title={Normal-guided Detail-Preserving Neural Implicit Function for High-Fidelity 3D Surface Reconstruction},
+            author={Patel, Aarya and Laga, Hamid and Sharma, Ojaswa},
+            journal = {Proceedings of the ACM on Computer Graphics and Interactive Techniques},
+            number = {1},
+            volume = {8},
+            article = {12},
+            month = {May},
+            doi = {https://doi.org/10.1145/3728293},
+            year={2025}
+          }
+    </div>
+    
+            <script>  
+                function copyTextToClipboard() {
+                    // Get the text with line breaks
+                    const textWithLineBreaks = document.getElementById('copyMessage').innerHTML;
+    
+                    // Copy the text to the clipboard
+                    navigator.clipboard.writeText(textWithLineBreaks)
+                        .then(() => {
+                            // Optionally, provide some feedback to the user
+                            document.getElementById('copy-button').style.backgroundColor = 'green';
+                            document.getElementById('copy-button').textContent = 'Copied';
+                        })
+                        .catch(err => {
+                            console.error('Unable to copy text to clipboard', err);
+                        });
+                    }
+            </script>
+    
+    
+        </div>
+    
+
+</body>
+
+</html>

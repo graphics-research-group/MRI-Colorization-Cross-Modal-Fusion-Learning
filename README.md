@@ -44,11 +44,11 @@ Below are some key tables from the paper:
 └── 📜 LICENSE                     # License information
 ``` -->
 
-## 🚀 Getting Started
+<!-- ## 🚀 Getting Started
 ### Prerequisites
 Ensure you have the following installed:
 - Python >= 3.x
-- Required packages listed in `requirements.txt`
+- Required packages listed in `requirements.txt` -->
 
 ### Installation
 Clone the repository and install dependencies:

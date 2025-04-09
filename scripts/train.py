@@ -113,12 +113,7 @@ class Trainer:
             fake_B, genCryo = self.netG_A2B(real_A)
             pred_fake = self.netD_B(fake_B).view(-1)
             loss_GAN_A2B = criterion_GAN(pred_fake, target_real)
-            #### new loss hsv
-            # hsvConverted_fake_B = get_hsv(fake_B)
-            # hsvConverted_real_B = get_hsv(real_B)
-
-            # # loss_hsv = criterion_identity(rgb2hsv_torch(fake_B.clone().detach()).to(torch.float32), rgb2hsv_torch(real_B).to(torch.float32)).requires_grad_(True)
-            # loss_hsv = criterion_identity(hsvConverted_fake_B, hsvConverted_real_B)
+         
 
             fake_A = self.netG_B2A(real_B)
             pred_fake = self.netD_A(fake_A).view(-1)
@@ -194,7 +189,6 @@ class Trainer:
         loss_D_real = criterion_GAN(pred_real, target_real)
         
         # Fake loss
-        # fake_B = fake_B_buffer.push_and_pop(fake_B)
         pred_fake = self.netD_B(fake_B.detach()).view(-1)
         loss_D_fake = criterion_GAN(pred_fake, target_fake)
         
@@ -211,90 +205,10 @@ class Trainer:
         fake_A = ((fake_A.permute(0, 2, 3, 1).cpu().detach().numpy())*255).astype(np.uint8)
         genCryo = ((genCryo.permute(0, 2, 3, 1).cpu().detach().numpy())*255).astype(np.uint8)
         
-        # real_C =  torch.argmax(real_C, dim=1).cpu().detach().numpy()
-        # fake_C = torch.argmax(fake_C, dim=1).cpu().detach().numpy()
-        # print(real_C.shape, fake_C.shape)
-        if WANDB:
-            wandb.log({'lossG {}'.format('cycle2D') : loss_G.mean().item()})
-            wandb.log({'lossDB {}'.format('cycle2D') : loss_D_B.mean().item()})
-            wandb.log({'lossDA {}'.format('cycle2D') : loss_D_A.mean().item()})
-            wandb.log({'loss_GAN_A2B' : loss_GAN_A2B.mean().item()})
-            wandb.log({'loss_GAN_B2A' : loss_GAN_B2A.mean().item()})
-            wandb.log({'loss_cycle_ABA': loss_cycle_ABA.mean().item()})
-            wandb.log({'loss_cycle_BAB': loss_cycle_BAB.mean().item()})
-            wandb.log({'loss_cycle_BAB': loss_cycle_BAB.mean().item()})
-            wandb.log({'loss seg ': loss_segmentation.mean().item()})
-            wandb.log({'loss ms_ssim mri': loss_multiscale.mean().item()})
-            wandb.log({'loss ms_ssim cryo': loss_ssim_cryo.mean().item()})
-            wandb.log({'loss ms_ssim cryo': loss_ssim_cryo2mri.mean().item()})
-            wandb.log({'loss seg ': loss_segmentation2.mean().item()})
+      
+    
 
         epoch_checkpoint = load_checkpoint + epoch
-        if epoch_checkpoint%5==0:
-            skimage.io.imsave('./output/generated{}/{}_mri_trainset_1.png'.format(saveDirType, epoch_checkpoint), real_A[0, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_cryo_trainset_1.png'.format(saveDirType, epoch_checkpoint), real_B[0, ...])
-            skimage.io.imsave('./output/generated{}/{}_genCryo_trainset_1.png'.format(saveDirType, epoch_checkpoint), fake_B[0, ...])
-            skimage.io.imsave('./output/generated{}/{}_genMRI_trainset_1.png'.format(saveDirType, epoch_checkpoint), fake_A[0, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_seg_trainset_1.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(real_C[0, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegB_trainset_1.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C[0, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_segLabel_trainset_1.png'.format(saveDirType, epoch_checkpoint), get_labelmap(real_C[0, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegLabelB_trainset_1.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C[0, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genMRI2Cryo_1.png'.format(saveDirType, epoch_checkpoint), genCryo[0, ...])
-            skimage.io.imsave('./output/generated{}/{}_genCryo_SegLabelB_trainset_1.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C2[0, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryoSegB_trainset_1.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C2[0, ...], colormap))
-
-
-            skimage.io.imsave('./output/generated{}/{}_genMRI2Cryo_2.png'.format(saveDirType, epoch_checkpoint), genCryo[1, ...])
-            skimage.io.imsave('./output/generated{}/{}_mri_trainset_2.png'.format(saveDirType, epoch_checkpoint), real_A[1, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_cryo_trainset_2.png'.format(saveDirType, epoch_checkpoint), real_B[1, ...])
-            skimage.io.imsave('./output/generated{}/{}_genCryo_trainset_2.png'.format(saveDirType, epoch_checkpoint), fake_B[1, ...])
-            skimage.io.imsave('./output/generated{}/{}_genMRI_trainset_2.png'.format(saveDirType, epoch_checkpoint), fake_A[1, :256, :256, 0]) 
-            skimage.io.imsave('./output/generated{}/{}_seg_trainset_2.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(real_C[1, ...], colormap)) 
-            skimage.io.imsave('./output/generated{}/{}_genSegB_trainset_2.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C[1, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_segLabel_trainset_2.png'.format(saveDirType, epoch_checkpoint), get_labelmap(real_C[1, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegLabelB_trainset_2.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C[1, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryo_SegLabelB_trainset_2.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C2[1, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryoSegB_trainset_2.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C2[1, ...], colormap))
-
-
-            skimage.io.imsave('./output/generated{}/{}_genMRI2Cryo_3.png'.format(saveDirType, epoch_checkpoint), genCryo[2, ...])
-            skimage.io.imsave('./output/generated{}/{}_mri_trainset_3.png'.format(saveDirType, epoch_checkpoint), real_A[2, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_cryo_trainset_3.png'.format(saveDirType, epoch_checkpoint), real_B[2, ...])
-            skimage.io.imsave('./output/generated{}/{}_genCryo_trainset_3.png'.format(saveDirType, epoch_checkpoint), fake_B[2, ...])
-            skimage.io.imsave('./output/generated{}/{}_genMRI_trainset_3.png'.format(saveDirType, epoch_checkpoint), fake_A[2, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_seg_trainset_3.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(real_C[2, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegB_trainset_3.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C[2, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_segLabel_trainset_3.png'.format(saveDirType, epoch_checkpoint), get_labelmap(real_C[2, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegLabelB_trainset_3.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C[2, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryo_SegLabelB_trainset_3.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C2[2, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryoSegB_trainset_3.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C2[2, ...], colormap))
-
-            
-            skimage.io.imsave('./output/generated{}/{}_genMRI2Cryo_4.png'.format(saveDirType, epoch_checkpoint), genCryo[3, ...])
-            skimage.io.imsave('./output/generated{}/{}_mri_trainset_4.png'.format(saveDirType, epoch_checkpoint), real_A[3, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_cryo_trainset_4.png'.format(saveDirType, epoch_checkpoint), real_B[3, ...])
-            skimage.io.imsave('./output/generated{}/{}_genCryo_trainset_4.png'.format(saveDirType, epoch_checkpoint), fake_B[3, ...])
-            skimage.io.imsave('./output/generated{}/{}_genMRI_trainset_4.png'.format(saveDirType, epoch_checkpoint), fake_A[3, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_seg_trainset_4.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(real_C[3, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegB_trainset_4.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C[3, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_segLabel_trainset_4.png'.format(saveDirType, epoch_checkpoint), get_labelmap(real_C[3, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegLabelB_trainset_4.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C[3, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryo_SegLabelB_trainset_4.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C2[3, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryoSegB_trainset_4.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C2[3, ...], colormap))
-
-            
-            skimage.io.imsave('./output/generated{}/{}_genMRI2Cryo_5.png'.format(saveDirType, epoch_checkpoint), genCryo[4, ...])
-            skimage.io.imsave('./output/generated{}/{}_mri_trainset_5.png'.format(saveDirType, epoch_checkpoint), real_A[4, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_cryo_trainset_5.png'.format(saveDirType, epoch_checkpoint), real_B[4, ...])
-            skimage.io.imsave('./output/generated{}/{}_genCryo_trainset_5.png'.format(saveDirType, epoch_checkpoint), fake_B[4, ...])
-            skimage.io.imsave('./output/generated{}/{}_genMRI_trainset_5.png'.format(saveDirType, epoch_checkpoint), fake_A[4, :256, :256, 0])
-            skimage.io.imsave('./output/generated{}/{}_seg_trainset_5.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(real_C[4, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegB_trainset_5.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C[4, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_segLabel_trainset_5.png'.format(saveDirType, epoch_checkpoint), get_labelmap(real_C[4, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genSegLabelB_trainset_5.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C[4, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryo_SegLabelB_trainset_5.png'.format(saveDirType, epoch_checkpoint), get_labelmap(fake_C2[4, ...], colormap))
-            skimage.io.imsave('./output/generated{}/{}_genCryoSegB_trainset_5.png'.format(saveDirType, epoch_checkpoint), get_coloredSeg(fake_C2[4, ...], colormap))
-
          
         if epoch%10 == 0:
 
@@ -305,8 +219,6 @@ class Trainer:
             torch.save(self.netG_B2A.state_dict(), 'epoch_checkpoints/{}/netG_B2A_{}.pth'.format(epoch_checkpoint, modelNameType))
             torch.save(self.netD_A.state_dict(), 'epoch_checkpoints/{}/netD_A_{}.pth'.format(epoch_checkpoint, modelNameType))
             torch.save(self.netD_B.state_dict(), 'epoch_checkpoints/{}/netD_B_{}.pth'.format(epoch_checkpoint, modelNameType))
-            # torch.save(netG_A2A.state_dict(), 'epoch_checkpoints/{}/netG_A2A_{}.pth'.format(epoch, modelNameType))
-            # torch.save(netG_B2B.state_dict(), 'epoch_checkpoints/{}/netG_B2B_{}.pth'.format(epoch, modelNameType))
             torch.save(self.netC.state_dict(), 'epoch_checkpoints/{}/netC_{}.pth'.format(epoch_checkpoint, modelNameType))        
 
 
@@ -334,44 +246,10 @@ class Trainer:
                 sourceB = downscale(sourceB)
                 sourceC = downscaleC(sourceC)
                 
-            # target_real = torch.ones(sourceA.shape[0]*256*256).to(torch.float32).to(self.gpu_id)
-            # target_fake = torch.zeros(sourceA.shape[0]*256*256).to(torch.float32).to(self.gpu_id)
             target_real = torch.ones(sourceA.shape[0]).to(torch.float32).to(self.gpu_id)
             target_fake = torch.zeros(sourceA.shape[0]).to(torch.float32).to(self.gpu_id)
-            # targets = targets.to(self.gpu_id)
             self._run_batch(sourceA, sourceB, sourceC, target_real, target_fake, epoch)
 
-    def _save_checkpoint(self, epoch):
-        # ckp1 = self.netG_A2B.module.state_dict()
-        PATH = "checkpoint1.pt"
-        # torch.save(ckp1, PATH)
-        torch.save(self.netG_A2B.state_dict(), 'epoch_checkpoints/netG_A2B_{}.pth'.format(modelNameType))
-        torch.save(self.netG_B2A.state_dict(), 'epoch_checkpoints/netG_B2A_{}.pth'.format(modelNameType))
-        torch.save(self.netD_A.state_dict(), 'epoch_checkpoints/netD_A_{}.pth'.format(modelNameType))
-        torch.save(self.netD_B.state_dict(), 'epoch_checkpoints/netD_B_{}.pth'.format(modelNameType))
-        torch.save(self.netC.state_dict(), 'epoch_checkpoints/net_C{}.pth'.format(modelNameType))
-
-        # print(f"Epoch {epoch} | Training checkpoint saved at {PATH}")
-
-        # ckp2 = self.netG_B2A.module.state_dict()
-        # PATH = "checkpoint2.pt"
-        # torch.save(ckp2, PATH)
-        # print(f"Epoch {epoch} | Training checkpoint saved at {PATH}")
-
-        # ckp3 = self.netD_A.module.state_dict()
-        # PATH = "checkpoint3.pt"
-        # torch.save(ckp3, PATH)
-        # print(f"Epoch {epoch} | Training checkpoint saved at {PATH}")
-
-        # ckp4 = self.netD_B.module.state_dict()
-        # PATH = "checkpoint4.pt"
-        # torch.save(ckp4, PATH)
-        # print(f"Epoch {epoch} | Training checkpoint saved at {PATH}")
-
-        # ckp5 = self.netC.module.state_dict()
-        # PATH = "checkpoint5.pt"
-        # torch.save(ckp5, PATH)
-        # print(f"Epoch {epoch} | Training checkpoint saved at {PATH}")
 
     
     def train(self, max_epochs: int):
@@ -413,21 +291,14 @@ def load_train_objs():
     trainset_filesPath2 = [('/home/ojaswa/mayuri/Projects/data/Slices256L2_test', trainsetFiles2[i]) for i in range(len(trainsetFiles2))]
     save_data_dir = '/home/ojaswa/mayuri/Projects/data/data2D_256/'
     trainsetFiles = trainset_filesPath + trainset_filesPath2
-    train_set = ImageDataset6_5_noerrors(trainsetFiles, transform=transforms.ToTensor(), mode='trainL2', n_channels=55) # load your dataset
+    train_set = ImageDataset(trainsetFiles, transform=transforms.ToTensor(), mode='trainL2', n_channels=55) # load your dataset
     netG_A2B = GeneratorM2CM_C(1, 3)  # load your model
     netG_B2A = Generator(3, 1)  # load your model
     netD_A = Discriminator(1)  # load your model
     netD_B = Discriminator(3)
     netC = UNet(3, 47)
 
-    if load_model:
-        # netG_A2B.load_state_dict(torch.load('./output/netG_A2B_{}.pth'.format('multiscale_l2_multigpu_down')))
-        # netG_B2A.load_state_dict(torch.load('./output/netG_B2A_{}.pth'.format('multiscale_l2_multigpu_down')))
-        netC.load_state_dict(torch.load('./epoch_checkpoints/160/netC{}.pth'.format('_multiscale_l2_multigpu_256_pretrained'), map_location='cuda:0'))
-        # netD_A.load_state_dict(torch.load('./output/netD_A_{}.pth'.format('multiscale_l2_multigpu_down')))
-        # netD_B.load_state_dict(torch.load('./output/netD_B_{}.pth'.format('multiscale_l2_multigpu_down')))
-        print("Models loaded successfully")
-
+        
     params = list(netG_A2B.parameters()) + list(netG_B2A.parameters())# + list(netC.parameters())
     paramsC = list(netC.parameters())
     optimizer_G = torch.optim.Adam(params, lr=1e-3)
@@ -457,11 +328,7 @@ def main(rank: int, world_size: int, save_every: int, total_epochs: int, batch_s
 
 if __name__ == "__main__":
     import argparse
-    # axia_data = get_files('./axisData.txt')
-    # trainsetFiles = get_files('./train_filesNoBlacks256.txt') #######################
-    # trainsetFiles = axia_data + trainsetFiles
-
-
+    
     save_data_dir = '/home/ojaswa/mayuri/Projects/data/data2D_256/'
 
     parser = argparse.ArgumentParser(description='simple distributed training job')

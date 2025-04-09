@@ -1,12 +1,9 @@
-# Paper Title
-
+# Structurally Consistent MRI Colorization using Cross-modal Fusion Learning
+_Mayuri Mathur, Anav Chaudhary, Saurabh Kumar Gupta, Ojaswa Sharma_  
+[IEEE, ISBI]  
 
 ## 📄 Introduction
 This repository contains the code, data, and supplementary materials for the paper:
-
-**"[Structurally Consistent MRI Colorization using Cross-modal Fusion Learning]"**  
-_Mayuri Mathur, Anav Chaudhary, Saurabh Kumar Gupta, Ojaswa Sharma_  
-[IEEE, ISBI]  
 
 📌 **Abstract:**  
 _Medical image colorization can greatly enhance the interpretability of the underlying imaging modality and provide insights into human anatomy. The objective of medical image colorization is to transfer a diverse spectrum of colors distributed across human anatomy from Cryosection data to source MRI data while retaining the structures of the MRI. To achieve this, we propose a novel architecture for structurally consistent color transfer to the source MRI data. Our architecture fuses segmentation semantics of Cryosection images for stable contextual colorization of various organs in MRI images. For colorization, we neither require precise registration between MRI and Cryosection images, nor segmentation of MRI images. Additionally, our architecture incorporates a feature compression-and-activation mechanism to capture organ-level global information and suppress noise, enabling the distinction of organ-specific data in MRI scans for more accurate and realistic organ-specific colorization. Our experiments demonstrate that our architecture surpasses the existing methods and yields better quantitative and qualitative results._
@@ -21,7 +18,7 @@ Below are some key figures from the paper:
 ![Figure 2](./results/Comparisons.png)
 *Figure 2: Quantitative comparison of MRI colorization with different methods.*
 
-### Tables
+<!-- ### Tables
 Below are some key tables from the paper:
 
 | Metric  | Value |
@@ -29,7 +26,7 @@ Below are some key tables from the paper:
 | SSIM | |
 | MSSSIM | |
 | FSIM  | |
-| STSIM  |  |
+| STSIM  |  | -->
 
 ## 📁 Repository Structure
 <!-- ```
@@ -64,7 +61,8 @@ cd MRI-Colorization-Cross-Modal-Fusion-Learning
 ### Running the Code
 To reproduce the experiments:
 ```bash
-python script1.py --arg1 value --arg2 value
+python train.py
+
 ```
 
 ## 📊 Results

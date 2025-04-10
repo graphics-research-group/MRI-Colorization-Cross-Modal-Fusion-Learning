@@ -1,8 +1,6 @@
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-# from datautils import MyTrainDataset2
-
 import torch.multiprocessing as mp
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -21,33 +19,22 @@ import torch
 
 from model import Generator, GeneratorM2CM_C
 from model import UNet
-from model import Discriminator ####################################
-from utils import ReplayBuffer
-from utils import LambdaLR
-# from utils import Logger
-from utils import weights_init_normal
+from model import Discriminator 
 from datasets import ImageDataset
-import wandb
 import tqdm 
-import skimage
 import numpy as np
 import os
 from pytorch_ssim import SSIM
 import gc
-import tqdm
 
 
 
-saveDirType = 'revised_pipeline_end2end'
-modelNameType = 'revised_pipeline_end2end'
+saveDirType = 'MRI Colorization'
+modelNameType = 'MRI Colorization'
 load_model = False
 downscale_input = False
 load_checkpoint = 0
-WANDB = False
-colormap = {i:np.random.randint(0, 255, (3,)) for i in range(1, 47)}
-colormap[0] = np.array([0, 0, 0])
-if WANDB:
-    wandb.init(project='revised_pipeline_end2end')
+per_epoch_save = 10
 
 def ddp_setup(rank, world_size):
     """
@@ -105,62 +92,52 @@ class Trainer:
         criterion_ssim5 = SSIM(window_size=5)
         criterion_ssim3 = SSIM(window_size=3)
         criterion_seg = torch.nn.CrossEntropyLoss()
-        for i in range(2):
-            ###### Generators A2B and B2A ######
-            self.optimizer_G.zero_grad()
-            
-            # GAN loss
-            fake_B, genCryo = self.netG_A2B(real_A)
-            pred_fake = self.netD_B(fake_B).view(-1)
-            loss_GAN_A2B = criterion_GAN(pred_fake, target_real)
-         
+        
+        ###### Generators A2B and B2A ######
+        self.optimizer_G.zero_grad()
+        
+        # GAN loss
+        fake_B, genCryo = self.netG_A2B(real_A)
+        pred_fake = self.netD_B(fake_B).view(-1)
+        loss_GAN_A2B = criterion_GAN(pred_fake, target_real)
+        
 
-            fake_A = self.netG_B2A(real_B)
-            pred_fake = self.netD_A(fake_A).view(-1)
-            
-            loss_GAN_B2A = criterion_GAN(pred_fake, target_real)
-            # loss_ssimB2A = criterion_ssim(fake_A, real_A)
-            
+        fake_A = self.netG_B2A(real_B)
+        pred_fake = self.netD_A(fake_A).view(-1)
+        
+        loss_GAN_B2A = criterion_GAN(pred_fake, target_real)
+        
 
-            # Cycle loss
-            recovered_A = self.netG_B2A(fake_B)
-            loss_cycle_ABA = criterion_cycle(recovered_A, real_A)*10.0
+        # Cycle loss
+        recovered_A = self.netG_B2A(fake_B)
+        loss_cycle_ABA = criterion_cycle(recovered_A, real_A)*10.0
 
-            recovered_B, _ = self.netG_A2B(fake_A)
-            loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
-            rgb2grey = fake_B.clone().mean(dim=1).view(real_A.shape[0], 1, real_A.shape[2], real_A.shape[3])
-            loss_multiscale = (1 - criterion_ssim11(rgb2grey, real_A)) + (1-criterion_ssim9(rgb2grey, real_A)) + (1-criterion_ssim7(rgb2grey, real_A)) + (1-criterion_ssim5(rgb2grey, real_A)) + (1-criterion_ssim3(rgb2grey, real_A) )
-                            
-            del rgb2grey
-            gc.collect()
-            ## Segmentation Loss
-            self.netC.eval()
-            fake_C2 = self.netC(genCryo)
-            real_C = real_C.to(torch.float32)
-            loss_segmentation2 = criterion_seg(fake_C2, real_C)
+        recovered_B, _ = self.netG_A2B(fake_A)
+        loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
+        rgb2grey = fake_B.clone().mean(dim=1).view(real_A.shape[0], 1, real_A.shape[2], real_A.shape[3])
+        loss_multiscale = (1 - criterion_ssim11(rgb2grey, real_A)) + (1-criterion_ssim9(rgb2grey, real_A)) + (1-criterion_ssim7(rgb2grey, real_A)) + (1-criterion_ssim5(rgb2grey, real_A)) + (1-criterion_ssim3(rgb2grey, real_A) )
+                        
+        
+        ## Segmentation Loss
+        self.netC.eval()
+        fake_C2 = self.netC(genCryo)
+        real_C = real_C.to(torch.float32)
+        loss_segmentation = criterion_seg(fake_C2, real_C)
 
-            loss_ssim_cryo = (1 - criterion_ssim11(genCryo, real_B)) + (1-criterion_ssim9(genCryo, real_B)) + (1-criterion_ssim7(genCryo, real_B)) + (1-criterion_ssim5(genCryo, real_B)) + (1-criterion_ssim3(genCryo, real_B) )
-            
-            real_B_grey = real_B.clone().mean(dim=1).view(real_A.shape[0], 1, real_A.shape[2], real_A.shape[3])
-            loss_ssim_cryo2mri = (1 - criterion_ssim11(fake_A, real_B_grey)) + (1-criterion_ssim9(fake_A, real_B_grey)) + (1-criterion_ssim7(fake_A, real_B_grey)) + (1-criterion_ssim5(fake_A, real_B_grey)) + (1-criterion_ssim3(fake_A, real_B_grey) )
-            del real_B_grey
-            gc.collect()
-            # Total loss
-            loss_G =  loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB  +  loss_multiscale+ loss_segmentation2 + loss_ssim_cryo#+ loss_identity_A + loss_identity_B
-            loss_G.backward()
-            self.optimizer_G.step()
+        loss_ssim_cryo = (1 - criterion_ssim11(genCryo, real_B)) + (1-criterion_ssim9(genCryo, real_B)) + (1-criterion_ssim7(genCryo, real_B)) + (1-criterion_ssim5(genCryo, real_B)) + (1-criterion_ssim3(genCryo, real_B) )
+        
+        real_B_grey = real_B.clone().mean(dim=1).view(real_A.shape[0], 1, real_A.shape[2], real_A.shape[3])
+        loss_ssim_cryo2mri = (1 - criterion_ssim11(fake_A, real_B_grey)) + (1-criterion_ssim9(fake_A, real_B_grey)) + (1-criterion_ssim7(fake_A, real_B_grey)) + (1-criterion_ssim5(fake_A, real_B_grey)) + (1-criterion_ssim3(fake_A, real_B_grey) )
+        del real_B_grey
+        gc.collect()
+        
+        # Total loss
+        loss_G =  loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB  +  loss_multiscale+ loss_segmentation + loss_ssim_cryo#+ loss_identity_A + loss_identity_B
+        loss_G.backward()
+        self.optimizer_G.step()
         
         ###################################
-        ### Segnet
-        self.netC.train()
-        self.optimizer_S.zero_grad()
-        fake_C = self.netC(real_B)
-        real_C = real_C.to(torch.float32)
-        loss_segmentation = criterion_seg(fake_C, real_C)
-        loss_segmentation.backward()
-        self.optimizer_S.step()
-        ###### Discriminator A ######
-        self.optimizer_D_A.zero_grad()
+        
 
 
         # Real loss
@@ -168,11 +145,8 @@ class Trainer:
         loss_D_real = criterion_GAN(pred_real, target_real)
 
         # Fake loss
-        # fake_A = fake_A_buffer.push_and_pop(fake_A)
         pred_fake = self.netD_A(fake_A.detach()).view(-1)
         loss_D_fake = criterion_GAN(pred_fake, target_fake)
-        
-
 
         # Total loss
         loss_D_A = (loss_D_real + loss_D_fake)*0.5
@@ -198,19 +172,10 @@ class Trainer:
         loss_D_B.backward()
 
         self.optimizer_D_B.step()
-
-        real_A = ((real_A.permute(0, 2, 3, 1).cpu().detach().numpy())*255).astype(np.uint8)
-        real_B = ((real_B.permute(0, 2, 3, 1).cpu().detach().numpy())*255).astype(np.uint8)
-        fake_B = ((fake_B.permute(0, 2, 3, 1).cpu().detach().numpy())*255).astype(np.uint8)
-        fake_A = ((fake_A.permute(0, 2, 3, 1).cpu().detach().numpy())*255).astype(np.uint8)
-        genCryo = ((genCryo.permute(0, 2, 3, 1).cpu().detach().numpy())*255).astype(np.uint8)
         
-      
-    
-
         epoch_checkpoint = load_checkpoint + epoch
          
-        if epoch%10 == 0:
+        if epoch%per_epoch_save == 0:
 
             if not os.path.exists('./epoch_checkpoints/{}'.format(epoch_checkpoint)):
                 os.mkdir('./epoch_checkpoints/{}'.format(epoch_checkpoint))
@@ -258,53 +223,26 @@ class Trainer:
             if self.gpu_id == 0 and epoch % self.save_every == 0:
                 self._save_checkpoint(epoch)
 
-def get_files(filename):
-    filenames_all = open(filename, 'r')
-    files_ = filenames_all.readlines()
 
-    files =[]
-    for i in range(len(files_)):
-       files.append(files_[i].split('\n')[0])
 
-    return files
-
-def get_coloredSeg(channelwise_bitmap, colormap, n_classes=47):
-    segmap = torch.argmax(channelwise_bitmap, dim=0)
-    segmap_np = segmap.cpu().detach().numpy()
-    outColored = np.zeros((segmap_np.shape[0], segmap_np.shape[1], 3)).astype(np.uint8)
-    for i in range(n_classes):
-        outColored[np.where(segmap_np==i)] = colormap[i]
-    return outColored.astype(np.uint8)
-def get_labelmap(channelwise_bitmap, colormap, n_classes=47):
-    segmap = torch.argmax(channelwise_bitmap, dim=0)
-    segmap_np = segmap.cpu().detach().numpy()
-    outColored = np.zeros((segmap_np.shape[0], segmap_np.shape[1], 3)).astype(np.uint8)
-    for i in range(n_classes):
-        outColored[np.where(segmap_np==i)] = i
-    return outColored.astype(np.uint8)
 def load_train_objs():
-    axia_data = get_files('./axisDataL2.txt')
-    trainsetFiles = get_files('./train_filesNoBlacks256L2.txt') #######################
-    trainsetFiles2 = get_files('./train_filesNoBlacks256L2_2.txt')
-    trainsetFiles_ = axia_data + trainsetFiles
-    trainset_filesPath = [('/home/ojaswa/mayuri/Projects/data/data2D_256/trainL2', trainsetFiles_[i]) for i in range(len(trainsetFiles_))]
-    trainset_filesPath2 = [('/home/ojaswa/mayuri/Projects/data/Slices256L2_test', trainsetFiles2[i]) for i in range(len(trainsetFiles2))]
-    save_data_dir = '/home/ojaswa/mayuri/Projects/data/data2D_256/'
-    trainsetFiles = trainset_filesPath + trainset_filesPath2
-    train_set = ImageDataset(trainsetFiles, transform=transforms.ToTensor(), mode='trainL2', n_channels=55) # load your dataset
-    netG_A2B = GeneratorM2CM_C(1, 3)  # load your model
-    netG_B2A = Generator(3, 1)  # load your model
+    image_dir = 'path/to/your/image_dir'  # replace with your image directory
+    label_dir = 'path/to/your/label_dir'  # a dictionary mapping image filenames to labels
+    
+    train_set = ImageDataset(image_dir, label_dir, transform=None) # load your dataset
+    netG_A2B = GeneratorM2CM_C(1, 3)  
+    netG_B2A = Generator(3, 1)  
     netD_A = Discriminator(1)  # load your model
     netD_B = Discriminator(3)
     netC = UNet(3, 47)
 
         
-    params = list(netG_A2B.parameters()) + list(netG_B2A.parameters())# + list(netC.parameters())
+    params = list(netG_A2B.parameters()) + list(netG_B2A.parameters())
     paramsC = list(netC.parameters())
-    optimizer_G = torch.optim.Adam(params, lr=1e-3)
+    optimizer_G = torch.optim.Adam(params, lr=1e-4)
     optimizer_S = torch.optim.Adam(paramsC, lr=1e-4)
-    optimizer_D_A = torch.optim.Adam(netD_A.parameters(), lr=1e-6)
-    optimizer_D_B = torch.optim.Adam(netD_B.parameters(), lr=1e-6)
+    optimizer_D_A = torch.optim.Adam(netD_A.parameters(), lr=1e-4)
+    optimizer_D_B = torch.optim.Adam(netD_B.parameters(), lr=1e-4)
     return train_set, netG_A2B, netG_B2A, netD_A, netD_B, netC, optimizer_G, optimizer_S, optimizer_D_A, optimizer_D_B  
 
 def prepare_dataloader(dataset: Dataset, batch_size: int):
@@ -329,7 +267,7 @@ def main(rank: int, world_size: int, save_every: int, total_epochs: int, batch_s
 if __name__ == "__main__":
     import argparse
     
-    save_data_dir = '/home/ojaswa/mayuri/Projects/data/data2D_256/'
+    save_data_dir = 'path/to/your/save_data_dir'  # replace with your save data directory
 
     parser = argparse.ArgumentParser(description='simple distributed training job')
     parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')
